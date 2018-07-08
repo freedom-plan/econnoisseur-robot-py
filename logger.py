@@ -1,5 +1,7 @@
 import logging
 
+from conf.setting import BASE_LOG
+
 
 # 抽象出timelogger
 
@@ -33,3 +35,7 @@ class TimeLogger(object):
             self.timeLogger.critical(content)
         else:
             raise ValueError("unsupported logging level %d" % level)
+
+
+# 设置全局日志类
+log = TimeLogger(BASE_LOG).timeLog
