@@ -18,6 +18,7 @@ class Depth(object):
 
 class Order(object):
     def __init__(self):
+        self.order_id = None
         self.pair = None
         self.is_limit_order = False
         self.is_sell_order = False
