@@ -76,23 +76,22 @@ class CoinExOrderService(OrderService):
         auth_header = generate_auth(params, self._secretKey)
         response = http.post(url, json=params, headers=auth_header)
 
-        repeat_times = 0
-        max_try_times = 1
-        time_interval = 1
-        while True:
+        if response.status_code == 200:
             try:
-                json_result = response.json()
-                log(u'下单成功, op: buy,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
-                order_id = json_result['data']['id']
-                return order_id
-            except(ValueError, TypeError):
-                log(u'json 解析失败: %s' % response.text)
-                if repeat_times < max_try_times:
-                    time.sleep(time_interval)
-                    log(u'尝试再次提交买单(最多尝试 [%s] 次)...' % max_try_times)
-                    repeat_times += 1
+                json_response = response.json()
+                data_code = json_response.get('code')
+                if 0 == data_code:
+                    log(u'下单成功, op: buy,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
+                    order_id = json_response['data']['id']
+                    return order_id
                 else:
-                    raise RuntimeError(u'尝试提交买单失败，请检查网络')
+                    log(u'买单接口返回码不正常:%s, message:%s' % (data_code, json_response.get('message')))
+            except ValueError:
+                log(u'买单接口未返回json格式内容: %s' % response.text)
+        else:
+            log(u'买单接口非正常返回: %s' % response.text)
+
+        return None
 
     def sell(self, order: Order):
         url = 'https://api.coinex.com/v1/order/limit'
@@ -108,23 +107,22 @@ class CoinExOrderService(OrderService):
         auth_header = generate_auth(params, self._secretKey)
         response = http.post(url, json=params, headers=auth_header)
 
-        repeat_times = 0
-        max_try_times = 1
-        time_interval = 1
-        while True:
+        if response.status_code == 200:
             try:
-                json_result = response.json()
-                log(u'下单成功, op: sell,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
-                order_id = json_result['data']['id']
-                return order_id
-            except(ValueError, KeyError, TypeError):
-                log(u'json 解析失败: %s' % response.text)
-                if repeat_times < max_try_times:
-                    time.sleep(time_interval)
-                    log(u'尝试再次提交卖单(最多尝试 [%s] 次)...' % max_try_times)
-                    repeat_times += 1
+                json_response = response.json()
+                data_code = json_response.get('code')
+                if 0 == data_code:
+                    log(u'下单成功, op: sell,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
+                    order_id = json_response['data']['id']
+                    return order_id
                 else:
-                    raise RuntimeError(u'尝试提交卖单失败，请检查网络')
+                    log(u'卖单接口返回码不正常:%s, message:%s' % (data_code, json_response.get('message')))
+            except ValueError:
+                log(u'卖单接口未返回json格式内容: %s' % response.text)
+        else:
+            log(u'卖单接口非正常返回: %s' % response.text)
+
+        return None
 
     def cancel(self, order_id: str, pair='') -> bool:
         url = 'https://api.coinex.com/v1/order/pending'
@@ -263,6 +261,7 @@ class CoinExAccountService(AccountService):
                     return r
                 else:
                     log(u'接口返回code异常 %s' % json.dumps(json_result))
+                    time.sleep(time_interval)
             except(ValueError, TypeError):
                 log(u'json 解析失败: %s' % response.text)
                 if repeat_times < max_try_times:
