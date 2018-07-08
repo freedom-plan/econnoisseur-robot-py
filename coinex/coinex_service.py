@@ -82,12 +82,9 @@ class CoinExOrderService(OrderService):
         while True:
             try:
                 json_result = response.json()
-                if json_result.get('code') == 0:
-                    log(u'下单成功, op: buy,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
-                    order_id = json_result['data']['id']
-                    return order_id
-                else:
-                    log(u'接口返回code异常 %s' % json.dumps(json_result))
+                log(u'下单成功, op: buy,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
+                order_id = json_result['data']['id']
+                return order_id
             except(ValueError, TypeError):
                 log(u'json 解析失败: %s' % response.text)
                 if repeat_times < max_try_times:
@@ -117,12 +114,9 @@ class CoinExOrderService(OrderService):
         while True:
             try:
                 json_result = response.json()
-                if json_result.get('code') == 0:
-                    log(u'下单成功, op: sell,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
-                    order_id = json_result['data']['id']
-                    return order_id
-                else:
-                    log(u'接口返回code异常 %s' % json.dumps(json_result))
+                log(u'下单成功, op: sell,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
+                order_id = json_result['data']['id']
+                return order_id
             except(ValueError, KeyError, TypeError):
                 log(u'json 解析失败: %s' % response.text)
                 if repeat_times < max_try_times:
@@ -216,7 +210,8 @@ class CoinExOrderService(OrderService):
                     prediction = data.get('prediction')
                     return [difficulty, prediction]
                 else:
-                    log(u'接口返回code异常 %s' % json.dumps(json_result))
+                    log(u'接口返回code异常: %s' % json.dumps(json_result))
+                    time.sleep(time_interval)
             except(ValueError, KeyError, TypeError):
                 log(u'json 解析失败: %s' % response.text)
                 if repeat_times < max_try_times:

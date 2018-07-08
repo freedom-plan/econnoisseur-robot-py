@@ -1,11 +1,15 @@
 import random
 import threading
 import time
+from conf.setting import BASE_CONF
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
-
+from configparser import ConfigParser
 from coinex.coinex_service import CoinExMarketService, CoinExOrderService, CoinExAccountService
 from dto.common import *
 from logger import log
+
+cfg = ConfigParser()
+cfg.read(BASE_CONF)
 
 
 def is_safe_wide(sell1, buy1):
@@ -54,7 +58,6 @@ def fast_step_exchange_by_multi_thread(currency_pair, accounts, target_coin='', 
     # for i in range(1):
     while True:
         ticker = market_service.get_ticker(currency_pair)
-        time.sleep(44444444)
         if is_safe_wide(ticker.sellPrice, ticker.buyPrice):
             # 设置买卖账户下标
             sell_index = (inner_circulation_count + 0) % len(accounts)
@@ -105,7 +108,6 @@ def fast_step_exchange_by_multi_thread(currency_pair, accounts, target_coin='', 
             accumulated_amount += deal_count
             inner_circulation_count += 1
             log(u'$$$> 第 %s 次执行交易成功, Uptime累计刷单数量:%s\t准备进行下一轮订单...\n' % (inner_circulation_count, accumulated_amount))
-            time.sleep(555555)
         else:
             log(u'盘口宽度不够，暂停交易1s，请等待...\n')
             time.sleep(1)
@@ -120,10 +122,10 @@ if __name__ == '__main__':
 
     # Q45Acc = Account('Q450382690', cfg.get('coinex', 'Q45-apiKey'), cfg.get('coinex', 'Q45-secretKey'))
     # SnormanAcc = Account('Snorman', cfg.get('coinex', 'Snorman-apiKey'), cfg.get('coinex', 'Snorman-secretKey'))
-    # WhulongAcc = Account('whulong', cfg.get('coinex', 'Whulong-apiKey'), cfg.get('coinex', 'Whulong-secretKey'))
+    WhulongAcc = Account('whulong', cfg.get('coinex', 'Whulong-apiKey'), cfg.get('coinex', 'Whulong-secretKey'))
 
     # fast_step_exchange_by_multi_thread(PAIR, [Q45Acc, SnormanAcc], target, base)
-    # fast_step_exchange_by_multi_thread(PAIR, WhulongAcc, target, base)
+    fast_step_exchange_by_multi_thread(PAIR, WhulongAcc, target, base)
 
     # market
     # marketService = CoinExMarketService()
