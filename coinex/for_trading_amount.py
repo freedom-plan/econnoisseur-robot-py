@@ -187,6 +187,8 @@ def mining_across_btc_eth_channel(btc_currency_pair, btc_base_coin, eth_currency
             log(u'盘口宽度不够，暂停交易1s，请等待...\n')
             time.sleep(1)
 
+        time.sleep(1)
+
         # eth
         ticker = market_service.get_ticker(eth_currency_pair)
         if is_safe_wide(ticker.sellPrice, ticker.buyPrice):
@@ -241,7 +243,7 @@ def mining_across_btc_eth_channel(btc_currency_pair, btc_base_coin, eth_currency
         else:
             log(u'盘口宽度不够，暂停交易1s，请等待...\n')
             time.sleep(1)
-        time.sleep(1)
+        time.sleep(2)
 
 
 if __name__ == '__main__':
@@ -257,8 +259,8 @@ if __name__ == '__main__':
     WhulongAcc = Account('whulong', cfg.get('coinex', 'Whulong-apiKey'), cfg.get('coinex', 'Whulong-secretKey'))
 
     # fast_step_exchange_by_multi_thread(PAIR, [Q45Acc, SnormanAcc], target, base)
-    # fast_step_exchange_by_multi_thread(PAIR_card_btc, WhulongAcc, target, base_btc)
-    mining_across_btc_eth_channel(PAIR_card_btc, base_btc, PAIR_card_eth, base_eth, WhulongAcc, target)
+    fast_step_exchange_by_multi_thread(PAIR_card_eth, WhulongAcc, target, base_eth)
+    # mining_across_btc_eth_channel(PAIR_card_btc, base_btc, PAIR_card_eth, base_eth, WhulongAcc, target)
 
     # market
     # marketService = CoinExMarketService()

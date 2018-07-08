@@ -169,7 +169,7 @@ class CoinExOrderService(OrderService):
 
         repeat_times = 0
         max_try_times = 5
-        time_interval = 0.5
+        time_interval = 1
         while True:
             try:
                 json_result = response.json()
@@ -198,7 +198,7 @@ class CoinExOrderService(OrderService):
 
         repeat_times = 0
         max_try_times = 5
-        time_interval = 0.5
+        time_interval = 1
         while True:
             try:
                 json_result = response.json()
@@ -240,7 +240,7 @@ class CoinExAccountService(AccountService):
 
         repeat_times = 0
         max_try_times = 5
-        time_interval = 0.5
+        time_interval = 2
         while True:
             try:
                 json_result = response.json()
