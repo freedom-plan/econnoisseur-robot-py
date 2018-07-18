@@ -75,10 +75,10 @@ class OrderService(object):
         """
         raise RuntimeError('Not implement yet!')
 
-    def status(self, order_id: str, **kwargs) -> OrderStatus:
+    def status(self, order: Order) -> OrderStatus:
         """ 检查指定订单的状态
+        :param order: 待查询的订单信息
         :rtype: object
-        :param order_id: 订单号
 
         """
         raise RuntimeError('Not implement yet!')

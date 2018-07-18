@@ -81,7 +81,7 @@ class CoinExOrderService(OrderService):
                 json_response = response.json()
                 data_code = json_response.get('code')
                 if 0 == data_code:
-                    log(u'下单成功, op: buy,\t currency_pair:%s,\t count: %s' % (order.pair, str(order.amount)))
+                    log(u'下单成功, op: buy，currency_pair:%s，count: %s' % (order.pair, str(order.amount)))
                     order_id = json_response['data']['id']
                     return order_id
                 else:
@@ -156,12 +156,12 @@ class CoinExOrderService(OrderService):
                 else:
                     raise RuntimeError(u'尝试撤销订单失败，请检查网络')
 
-    def status(self, order_id: str, pair=''):
+    def status(self, order: Order):
         url = 'https://api.coinex.com/v1/order/'
         params = {
             'access_id': self._apiKey,
-            'id': str(order_id),
-            'market': pair,
+            'id': str(order.order_id),
+            'market': order.pair,
             'tonce': str(int(round(time.time() * 1000)))
         }
 
@@ -238,14 +238,12 @@ class CoinExAccountService(AccountService):
 
         response = http.get(self.__balance_url, params=params, headers=auth_header)
 
-        repeat_times = 0
-        max_try_times = 5
-        time_interval = 2
-        while True:
+        if response.status_code == 200:
             try:
-                json_result = response.json()
-                if json_result.get('code') == 0:
-                    ret = json_result['data']
+                json_response = response.json()
+                data_code = json_response.get('code')
+                if 0 == data_code:
+                    ret = json_response['data']
                     r = {}
                     if ret and type(ret) is dict and len(ret) > 0:
                         filtered = {k.upper(): v for k, v in ret.items() if k in coins}
@@ -260,16 +258,12 @@ class CoinExAccountService(AccountService):
                         log(u'未获取到正确的余额信息: %s' % response.text)
                     return r
                 else:
-                    log(u'接口返回code异常 %s' % json.dumps(json_result))
-                    time.sleep(time_interval)
-            except(ValueError, TypeError):
-                log(u'json 解析失败: %s' % response.text)
-                if repeat_times < max_try_times:
-                    time.sleep(time_interval)
-                    log(u'尝试再次查询余额(最多尝试 [%s] 次)...' % max_try_times)
-                    repeat_times += 1
-                else:
-                    raise RuntimeError(u'尝试查询余额失败，请检查网络')
+                    log(u'余额信息接口返回码不正常:%s, message:%s' % (data_code, json_response.get('message')))
+            except ValueError:
+                log(u'余额信息接口未返回json格式内容: %s' % response.text)
+        else:
+            log(u'余额信息接口非正常返回: %s' % response.text)
+        return None
 
 
 if __name__ == '__main__':
